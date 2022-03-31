@@ -47,12 +47,11 @@ for record in dbCursor: #Get the grouping tuple
     for field in mfStruct.group_fields:
         attrList.append(record[field]) #Append the record to the list
     attrTuple = tuple(attrList) #Turn list into tupple
-    record = mfStruct.results.get(attrTuple)
-    if(record == None): #Group is not in the results set yet, add it
+    resultList = mfStruct.results.get(attrTuple)
+    if(resultList == None): #Group is not in the results set yet, add it
         mfStruct.results[attrTuple] = []
-        for i in mfStruct.agg_values: #Fill in the results list with 0s, the actual values being iterated through don't matter here
-            #NOTE: Could do a conditional for avg that stores two 0s (one for sum and one for length)
-            mfStruct.results[attrTuple].append(0)
+        for i in mfStruct.agg_values: #Fill in the results list with Nones, the actual values being iterated through don't matter here
+            mfStruct.results[attrTuple].append(None)
 """
 
 #Contains all the other loops
@@ -68,35 +67,63 @@ for i in range(len(mfStruct.agg_values)): #Need the i to get the appropriate lis
     dbCursor.execute("SELECT * FROM sales") #Re-fetch all the data from the database
     for record in dbCursor:
 
-        #Check if the record satisfies all the condiitions listed above, if not, just go to next record
-            #If it does match all the conditions (is part of the GV, add the code based on the second_part_of_agg thingy 
+        #Check if the record satisfies all the condiitions listed above, if not, just go to next record (this is where group_var comes into play
+            #If it does match all the conditions (is part of the GV, add the code based on the second_part_of_agg thingy
+                attrList = []
+                for field in mfStruct.group_fields:
+                    attrList.append(record[field]) #Append the record to the list
+                attrTuple = tuple(attrList) #Turn list into tupple
+                resultList = mfStruct.results.get(attrTuple)
             
 """
 
 #Loop for getting aggregate values (Will vary depending on aggregate value), this should be run after fetch has been performed
 #TODO
 
-#match second_part_of_agg:
+#match aggregate_type:
     #case "count": #TODO
-        #"""
-            #Code that corresponds to count
-        #"""
+        #Code that corresponds to count
+        """
+        if resultList[i] == None:
+            resultList[i] = 1
+        else:
+            resultList[i] += 1
+        """
     #case "sum": #TODO
-        #"""
-            #Code that corresponds to sum
-        #"""
+        #Code that corresponds to sum
+        """
+        if resultList[i] == None:
+            resultList[i] = record[field_to_aggregate]
+        else:
+            resultList[i] += record[field_to_aggregate]
+        """
     #case "min": #TODO
-        #"""
-            #Code that corresponds to min
-        #"""
+        #Code that corresponds to min
+        """
+        if resultList[i] == None:
+            resultList[i] = record[field_to_aggregate]
+        else:
+            if resultList[i] > record[field_to_aggregate]:
+                resultList[i] = record[field_to_aggregate]
+        """
     #case "max": #TODO
-        #"""
-            #Code that corresponds to max
-        #"""
+        #Code that corresponds to max
+        """
+        if resultList[i] == None:
+            resultList[i] = record[field_to_aggregate]
+        else:
+            if resultList[i] < record[field_to_aggregate]:
+                resultList[i] = record[field_to_aggregate]
+        """
     #case "avg": #TODO
-        #"""
-            #Code that corresponds to avg
-        #"""
+        #Code that corresponds to avg
+        """
+        if resultList[i] == None: #Store two values, sum and length, do the calculation when it's printing
+            resultList[i] = [record[field_to_aggregate], 1]
+        else:
+            resultList[i][0] += record[field_to_aggregate]
+            resultList[i][1] += 1
+        """
 
 code.write("print(\"Hello World\")")
 code.close()
