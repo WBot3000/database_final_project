@@ -7,7 +7,8 @@ class AggStore:
 		self.avg_1_quant = None
 		self.sum_2_quant = None
 		self.sum_3_quant = None
-		self.avg_3_quant = None
+		self.avg_3_quant
+ = None
 
 output = {}
 
@@ -16,10 +17,8 @@ dbCursor = dbConnection.cursor(cursor_factory = psycopg2.extras.RealDictCursor)
 dbCursor.execute("SELECT * FROM sales")
 
 for record in dbCursor:
-	groupTuple = (record["cust"], record["prod"])
+	groupTuple = (record["cust"], record["prod
+"])
 	testIfThere = output.get(groupTuple)
 	if testIfThere == None:
 		output[groupTuple] = AggStore()
-
-for key, value in output.items():
-        print(key)

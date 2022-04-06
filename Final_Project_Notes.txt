@@ -50,3 +50,15 @@ First need to open file to write program to
 Write a function that writes code for initializing the MF-Structure using the input and the template structure described above
 Write a function that writes code for performing a scan on the table based on grouping variable conditions
 Finally need to close file
+
+
+
+
+
+
+
+
+
+
+
+NOTE: We can alter the input to be more convenient
