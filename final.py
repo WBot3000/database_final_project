@@ -1,131 +1,66 @@
 import io
 
+#Basic reading of lines in the text file
+#TODO: take text and convert it into forms that can be placed in Python code
+input_file = io.open("./input.txt", 'r')
 code = io.open("./solution.py", 'w')
 
-#This is the code that will go into every solution, no matter what the input
-"""
-import psycopg2
+input_file.readline()
+select_attrs = input_file.readline()
 
-class MFStructure:
-    def __init__(self, group_fields, agg_values):
-        self.group_fields = group_fields
-        self.agg_values = agg_values
-        self.results = {}
+input_file.readline()
+num_grouping_vars = input_file.readline()
 
-# More code for the structure here...
+input_file.readline()
+grouping_attrs = input_file.readline()
+grouping_attrs = grouping_attrs.split(",")
+
+input_file.readline()
+aggregate_vector = input_file.readline()
+aggregate_vector = aggregate_vector.split(",")
+#aggregate_vector[len(aggregate_vector)-1] = 
+
+input_file.readline()
+select_condition_vector = input_file.readline()
+
+input_file.readline()
+having_condition = input_file.readline()
+
+#print(select_attrs)
+#print(num_grouping_vars)
+#print(grouping_attrs)
+#print(aggregate_vector)
+#print(select_condition_vector)
+#print(having_condition)
+
+#Imports needed for the solution
+code.writelines("import psycopg2\nimport psycopg2.extras\n\n")
+
+#Writing the aggregate structure
+code.writelines("class AggStore:\n\tdef __init__(self):\n")
+#Define attributes based on the aggregate_vector
+for agg in aggregate_vector:
+    code.writelines("\t\tself." + agg + " = None\n") #TODO: Need to remove the line break from the last value
+
+code.writelines("\noutput = {}\n\n")
+code.writelines("dbConnection = psycopg2.connect(dbname=\"postgres\", user=\"postgres\", password=\"password\", host=\"localhost\")\n")
+code.writelines("dbCursor = dbConnection.cursor(cursor_factory = psycopg2.extras.RealDictCursor)\n") #cursor_factory = psycopg2.extras.RealDictCursor allows you to get fields using field name as opposed to index number
+code.writelines("dbCursor.execute(\"SELECT * FROM sales\")\n\n") #dbCursor now contains all the data from the table
+
+#First loop
+code.writelines("for record in dbCursor:\n")
+code.writelines("\tgroupTuple = (")
+for i in range(len(grouping_attrs)):
+    code.writelines("record[\"" + grouping_attrs[i] + "\"]")
+    if i != len(grouping_attrs) - 1:
+        code.writelines(", ")
+code.writelines(")\n")
+code.writelines("\ttestIfThere = output.get(groupTuple)\n")
+code.writelines("\tif testIfThere == None:\n")
+code.writelines("\t\toutput[groupTuple] = AggStore()\n")
 
 
-#This is a function I wrote to split up the grouping variable's name into components
-def agg_val_to_list(agg_value):
-    list = ["", "", ""]
-    index = 0
-    for char in agg_value:
-        if char == '_':
-            index += 1
-        else:
-            list[index] += char
-    return list
-    
-
-#Declare the structure based on the input
-mfStruct = MFStructure(A, B, C) #A, B, and C should be based on the input
-
-dbConnection = psycopg2.connect(dbname="postgres",
-                                user="postgres",
-                                password="password",
-                                host="localhost")
-
-dbCursor = dbConnection.cursor(cursor_factory = psycopg2.extras.RealDictCursor) #cursor_factory = psycopg2.extras.RealDictCursor allows you to get fields using field name as opposed to index number
-
-dbCursor.execute("SELECT * FROM sales") #dbCursor now contains all the data from the table
-"""
-
-#First loop (The loop that gathers all the attribute)
-"""
-for record in dbCursor: #Get the grouping tuple
-    attrList = []
-    for field in mfStruct.group_fields:
-        attrList.append(record[field]) #Append the record to the list
-    attrTuple = tuple(attrList) #Turn list into tupple
-    resultList = mfStruct.results.get(attrTuple)
-    if(resultList == None): #Group is not in the results set yet, add it
-        mfStruct.results[attrTuple] = []
-        for i in mfStruct.agg_values: #Fill in the results list with Nones, the actual values being iterated through don't matter here
-            mfStruct.results[attrTuple].append(None)
-"""
-
-#Contains all the other loops
-"""
-for i in range(len(mfStruct.agg_values)): #Need the i to get the appropriate list value of C
-    av_list = agg_val_to_list(mfStruct.agg_values[i])
-    group_var = av_list[0]
-    aggregate_type = av_list[1]
-    field_to_aggregate = av_list[2]
-    
-    #Get all of the conditions for the grouping variable (group_var), probably using an external function on 
-
-    dbCursor.execute("SELECT * FROM sales") #Re-fetch all the data from the database
-    for record in dbCursor:
-
-        #Check if the record satisfies all the condiitions listed above, if not, just go to next record (this is where group_var comes into play
-            #If it does match all the conditions (is part of the GV, add the code based on the second_part_of_agg thingy
-                attrList = []
-                for field in mfStruct.group_fields:
-                    attrList.append(record[field]) #Append the record to the list
-                attrTuple = tuple(attrList) #Turn list into tupple
-                resultList = mfStruct.results.get(attrTuple)
-            
-"""
-
-#Loop for getting aggregate values (Will vary depending on aggregate value), this should be run after fetch has been performed
-#TODO
-
-#match aggregate_type:
-    #case "count": #TODO
-        #Code that corresponds to count
-        """
-        if resultList[i] == None:
-            resultList[i] = 1
-        else:
-            resultList[i] += 1
-        """
-    #case "sum": #TODO
-        #Code that corresponds to sum
-        """
-        if resultList[i] == None:
-            resultList[i] = record[field_to_aggregate]
-        else:
-            resultList[i] += record[field_to_aggregate]
-        """
-    #case "min": #TODO
-        #Code that corresponds to min
-        """
-        if resultList[i] == None:
-            resultList[i] = record[field_to_aggregate]
-        else:
-            if resultList[i] > record[field_to_aggregate]:
-                resultList[i] = record[field_to_aggregate]
-        """
-    #case "max": #TODO
-        #Code that corresponds to max
-        """
-        if resultList[i] == None:
-            resultList[i] = record[field_to_aggregate]
-        else:
-            if resultList[i] < record[field_to_aggregate]:
-                resultList[i] = record[field_to_aggregate]
-        """
-    #case "avg": #TODO
-        #Code that corresponds to avg
-        """
-        if resultList[i] == None: #Store two values, sum and length, do the calculation when it's printing
-            resultList[i] = [record[field_to_aggregate], 1]
-        else:
-            resultList[i][0] += record[field_to_aggregate]
-            resultList[i][1] += 1
-        """
-
-code.write("print(\"Hello World\")")
+#...
+#Close all the files
+input_file.close()
 code.close()
-
-print("Done")
