@@ -24,17 +24,40 @@ for record in dbCursor:
 dbCursor.execute("SELECT * FROM sales")
 for record in dbCursor:
 	if (1.cust=cust and 1.state='NY'):
-		'Sum Code'
-		'Avg Code'
+		groupTuple = (record["cust"])
+		group = output.get(groupTuple)
+		if group.sum_1_quant == None:
+			group.sum_1_quant = record["quant"]
+		else:
+			group.sum_1_quant += record["quant"]
+		if group.avg_1_quant == None:
+			group.avg_1_quant = [record["quant"], 1]
+		else:
+			group.avg_1_quant[0] += record["quant"]
+			group.avg_1_quant[1] += 1
 
 dbCursor.execute("SELECT * FROM sales")
 for record in dbCursor:
 	if (2.cust=cust and 2.state='NJ'):
-		'Sum Code'
+		groupTuple = (record["cust"])
+		group = output.get(groupTuple)
+		if group.sum_2_quant == None:
+			group.sum_2_quant = record["quant"]
+		else:
+			group.sum_2_quant += record["quant"]
 
 dbCursor.execute("SELECT * FROM sales")
 for record in dbCursor:
 	if (3.cust=cust and 3.state='CT'):
-		'Sum Code'
-		'Avg Code'
+		groupTuple = (record["cust"])
+		group = output.get(groupTuple)
+		if group.sum_3_quant == None:
+			group.sum_3_quant = record["quant"]
+		else:
+			group.sum_3_quant += record["quant"]
+		if group.avg_3_quant == None:
+			group.avg_3_quant = [record["quant"], 1]
+		else:
+			group.avg_3_quant[0] += record["quant"]
+			group.avg_3_quant[1] += 1
 

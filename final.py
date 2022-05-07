@@ -12,9 +12,6 @@ def agg_val_to_list(agg_value):
     return list
 
 #Basic reading of lines in the text file
-#TODO: take text and convert it into forms that can be placed in Python code
-
-##########################################################################
 with open("./input.txt", 'r') as inputFile:
     # Select Attributes will be stored in S as a list of strings
     # Commas will separate them, spaces and newlines will be removed
@@ -50,8 +47,6 @@ with open("./input.txt", 'r') as inputFile:
         gv = int(gv) #Turn gv into integer to be used as index
         aggregate_vector[gv].append(agg)
         
-    
-
     # Select Condition Vects will be stored in th as a list of strings
     # Commas will separate them, spaces and newlines will be removed
     # Within these conditions, AND and OR statements are replaced with @@ or ||, respectively
@@ -77,136 +72,99 @@ with open("./input.txt", 'r') as inputFile:
     having_condition = having_condition.replace('\n', '')
     having_condition = having_condition.split(',')
 
-##############################################
+#Write to solution file
+with open("./solution.py", 'w') as code:
+
+    #Function for getting grouping tuple
+    def get_grouping_tuple():
+        code.writelines("groupTuple = (")
+        for i in range(len(grouping_attrs)):
+            code.writelines("record[\"" + grouping_attrs[i] + "\"]")
+            if i != len(grouping_attrs) - 1:
+                code.writelines(", ")
+        code.writelines(")\n")
     
-#input_file = io.open("./input.txt", 'r')
-code = io.open("./solution.py", 'w')
+    #Imports needed for the solution
+    code.writelines("import psycopg2\nimport psycopg2.extras\n\n")
 
-#input_file.readline()
-#select_attrs = input_file.readline()
+    #Writing the aggregate structure
+    code.writelines("class AggStore:\n\tdef __init__(self):\n")
+    #Define attributes based on the aggregate_vector
+    for agg in FTemp: #Uses FTemp for convenience since it's one dimensional
+        code.writelines("\t\tself." + agg + " = None\n")
+        
 
-#input_file.readline()
-#num_grouping_vars = input_file.readline()
+    code.writelines("\noutput = {}\n\n")
+    code.writelines("dbConnection = psycopg2.connect(dbname=\"postgres\", user=\"postgres\", password=\"password\", host=\"localhost\")\n")
+    code.writelines("dbCursor = dbConnection.cursor(cursor_factory = psycopg2.extras.RealDictCursor)\n") #cursor_factory = psycopg2.extras.RealDictCursor allows you to get fields using field name as opposed to index number
+    code.writelines("dbCursor.execute(\"SELECT * FROM sales\")\n\n") #dbCursor now contains all the data from the table
 
-#input_file.readline()
-#grouping_attrs = input_file.readline()
-#grouping_attrs = grouping_attrs.split(",") #TODO: Remove \n from last
+    #First loop
+    code.writelines("for record in dbCursor:\n")
+    code.writelines("\t")
+    get_grouping_tuple()
+    code.writelines("\ttestIfThere = output.get(groupTuple)\n")
+    code.writelines("\tif testIfThere == None:\n")
+    code.writelines("\t\toutput[groupTuple] = AggStore()\n")
 
-#input_file.readline()
-#aggregate_vector = input_file.readline()
-#aggregate_vector = aggregate_vector.split(",") #TODO: Remove \n from last
-#aggregate_vector[len(aggregate_vector)-1] = 
+    code.writelines("\n")
 
-#input_file.readline()
-#select_condition_vector = input_file.readline()
-#select_condition_vector = select_condition_vector.split(",") #TODO: Convert these into Python conditionals, also get rid of \n on last
+    var = 0
 
-#input_file.readline()
-#having_condition = input_file.readline()
-
-#print(select_attrs)
-#print(num_grouping_vars)
-#print(grouping_attrs)
-#print(aggregate_vector)
-#print(select_condition_vector)
-#print(having_condition)
-
-#Imports needed for the solution
-code.writelines("import psycopg2\nimport psycopg2.extras\n\n")
-
-#Writing the aggregate structure
-code.writelines("class AggStore:\n\tdef __init__(self):\n")
-#Define attributes based on the aggregate_vector
-for agg in FTemp: #Uses FTemp for convenience since it's one dimensional
-    code.writelines("\t\tself." + agg + " = None\n")
-    
-
-code.writelines("\noutput = {}\n\n")
-code.writelines("dbConnection = psycopg2.connect(dbname=\"postgres\", user=\"postgres\", password=\"password\", host=\"localhost\")\n")
-code.writelines("dbCursor = dbConnection.cursor(cursor_factory = psycopg2.extras.RealDictCursor)\n") #cursor_factory = psycopg2.extras.RealDictCursor allows you to get fields using field name as opposed to index number
-code.writelines("dbCursor.execute(\"SELECT * FROM sales\")\n\n") #dbCursor now contains all the data from the table
-
-#First loop
-code.writelines("for record in dbCursor:\n")
-code.writelines("\tgroupTuple = (")
-for i in range(len(grouping_attrs)):
-    code.writelines("record[\"" + grouping_attrs[i] + "\"]")
-    if i != len(grouping_attrs) - 1:
-        code.writelines(", ")
-code.writelines(")\n")
-code.writelines("\ttestIfThere = output.get(groupTuple)\n")
-code.writelines("\tif testIfThere == None:\n")
-code.writelines("\t\toutput[groupTuple] = AggStore()\n")
-
-code.writelines("\n")
-
-var = 0
-
-#Loops for all the aggregates
-#for agg_values in aggregate_vector:
-#    for agg in agg_values:
-#        agg_type, gv, agg_attribute = agg_val_to_list(agg)
-#        gv = int(gv) #Turn gv into integer to be used as index
-#        selection_conditions = select_condition_vector[gv]
-#        code.writelines("dbCursor.execute(\"SELECT * FROM sales\")\n")
-#        code.writelines("for record in dbCursor:\n")
-#        code.writelines("\tif (" + selection_conditions + "):\n")
-#        if agg_type == "count":
-#            var = 1
-#            #TODO: Count code goes here
-#        elif agg_type == "sum":
-#            var = 1
-#            #TODO
-#        elif agg_type == "max":
-#            var = 1
-#            #TODO
-#        elif agg_type == "min":
-#            var = 1
-#            #TODO
-#        elif agg_type == "avg":
-#            var = 1
-#            #TODO
-#        code.writelines("\n")
-
-for gv_idx in range(num_grouping_vars+1):
-    aggregates = aggregate_vector[gv_idx]
-    selection_conditions = select_condition_vector[gv_idx]
-    if len(aggregates) > 0: #Don't do a loop if there's no aggregates
-        code.writelines("dbCursor.execute(\"SELECT * FROM sales\")\n")
-        code.writelines("for record in dbCursor:\n")
-        code.writelines("\tif (" + selection_conditions + "):\n") #If selection conditions apply, do these things
-        for agg in aggregates:
-            agg_type, gv, agg_attribute = agg_val_to_list(agg)
-            if agg_type == "count":
-                var = 1
-                code.writelines("\t\t'Count Code'\n")
-                #TODO: Count code goes here
-            elif agg_type == "sum":
-                var = 1
-                code.writelines("\t\t'Sum Code'\n")
-                #TODO
-            elif agg_type == "max":
-                var = 1
-                code.writelines("\t\t'Max Code'\n")
-                #TODO
-            elif agg_type == "min":
-                var = 1
-                code.writelines("\t\t'Min Code'\n")
-                #TODO
-            elif agg_type == "avg":
-                var = 1
-                code.writelines("\t\t'Avg Code'\n")
-                #TODO
-        code.writelines("\n")
-            
+    for gv_idx in range(num_grouping_vars+1):
+        aggregates = aggregate_vector[gv_idx]
+        selection_conditions = select_condition_vector[gv_idx]
+        if len(aggregates) > 0: #Don't do a loop if there's no aggregates
+            code.writelines("dbCursor.execute(\"SELECT * FROM sales\")\n")
+            code.writelines("for record in dbCursor:\n")
+            code.writelines("\tif (" + selection_conditions + "):\n") #If selection conditions apply, do these things
+            code.writelines("\t\t")
+            get_grouping_tuple()
+            code.writelines("\t\tgroup = output.get(groupTuple)\n")
+            for agg in aggregates:
+                agg_type, gv, agg_attribute = agg_val_to_list(agg)
+                code.writelines("\t\tif group." + agg + " == None:\n")
+                if agg_type == "count":
+                    #var = 1
+                    #code.writelines("\t\t'Count Code'\n")
+                    code.writelines("\t\t\tgroup." + agg + " = 1\n") #If value hasn't been set properly yet
+                    code.writelines("\t\telse:\n")
+                    code.writelines("\t\t\tgroup." + agg + " += 1\n") #Add +1 to count if it has been set
+                    #TODO: Count code goes here
+                elif agg_type == "sum":
+                    #var = 1
+                    #code.writelines("\t\t'Sum Code'\n")
+                    code.writelines("\t\t\tgroup." + agg + " = record[\"" + agg_attribute + "\"]\n") #If value hasn't been set properly yet
+                    code.writelines("\t\telse:\n")
+                    code.writelines("\t\t\tgroup." + agg + " += record[\"" + agg_attribute + "\"]\n") #Add +1 to count if it has been set
+                    #TODO
+                elif agg_type == "max":
+                    #var = 1
+                    #code.writelines("\t\t'Max Code'\n")
+                    code.writelines("\t\t\tgroup." + agg + " = record[\"" + agg_attribute + "\"]\n")
+                    code.writelines("\t\telse:\n")
+                    code.writelines("\t\t\tgroup." + agg + " = min(group." + agg + ", record[\"" + agg_attribute + "\"])\n")
+                    #TODO
+                elif agg_type == "min":
+                    #var = 1
+                    #code.writelines("\t\t'Min Code'\n")
+                    code.writelines("\t\t\tgroup." + agg + " = record[\"" + agg_attribute + "\"]\n")
+                    code.writelines("\t\telse:\n")
+                    code.writelines("\t\t\tgroup." + agg + " = min(group." + agg + ", record[\"" + agg_attribute + "\"])\n")
+                    #TODO
+                elif agg_type == "avg": #Average is stored as two index array, first index is sum, second is count. Average is then computed by dividing during printing
+                    #var = 1
+                    #code.writelines("\t\t'Avg Code'\n")
+                    code.writelines("\t\t\tgroup." + agg + " = [record[\"" + agg_attribute + "\"], 1]\n")
+                    code.writelines("\t\telse:\n")
+                    code.writelines("\t\t\tgroup." + agg + "[0] += record[\"" + agg_attribute + "\"]\n")
+                    code.writelines("\t\t\tgroup." + agg + "[1] += 1\n")
+                    #TODO
+            code.writelines("\n")
+                
     
 
 
 
 #Having loop, where the output will be filtered
 #TODO
-
-
-#...
-#Close all the files
-code.close()
