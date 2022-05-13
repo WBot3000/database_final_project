@@ -1,0 +1,13 @@
+cust, sum_1_quant, sum_2_quant
+2
+cust
+sum_1_quant, sum_2_quant
+record["prod"]=='Apple', record["prod"]=='Cherry'
+aggs.sum_1_quant > aggs.sum_2_quant
+
+
+
+
+
+
+

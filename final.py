@@ -60,17 +60,17 @@ with open("./input.txt", 'r') as inputFile:
     select_condition_vector = select_condition_vector.split(',')
     select_condition_vector = ["True"] + select_condition_vector #Selection condition for g.v. 0
 
-    # Having Conditions will be stored in G as a list of strings
-    # Commas will separate them, spaces and newlines will be removed
+    # Having Conditions will be stored in G as a string
+    # Newlines will be removed
     # Within these conditions, AND and OR statements are replaced with @@ or ||, respectively
     having_condition = inputFile.readline()
-    having_condition = having_condition.replace(' and ', '@@')
-    having_condition = having_condition.replace(' or ', '||')
-    having_condition = having_condition.replace(' ', '')
-    having_condition = having_condition.replace('@@', ' and ')
-    having_condition = having_condition.replace('||', ' or ')
+    #having_condition = having_condition.replace(' and ', '@@')
+    #having_condition = having_condition.replace(' or ', '||')
+    #having_condition = having_condition.replace(' ', '')
+    #having_condition = having_condition.replace('@@', ' and ')
+    #having_condition = having_condition.replace('||', ' or ')
     having_condition = having_condition.replace('\n', '')
-    having_condition = having_condition.split(',')
+    #having_condition = having_condition.split(',')
 
 #Write to solution file
 with open("./solution.py", 'w') as code:
@@ -80,9 +80,17 @@ with open("./solution.py", 'w') as code:
         code.writelines("groupTuple = (")
         for i in range(len(grouping_attrs)):
             code.writelines("record[\"" + grouping_attrs[i] + "\"]")
-            if i != len(grouping_attrs) - 1:
-                code.writelines(", ")
+            #if i != len(grouping_attrs) - 1:
+            code.writelines(", ")
         code.writelines(")\n")
+
+    #Function to see if select attribute is a grouping attribute or aggregate for printing
+    #Returns index value of grouping attribute if grouping attribute, returns -1 if it's an aggregate
+    def is_grouping_attr(attr):
+        for i in range(len(grouping_attrs)):
+            if(attr == grouping_attrs[i]):
+                return i
+        return -1
     
     #Imports needed for the solution
     code.writelines("import psycopg2\nimport psycopg2.extras\n\n")
@@ -109,8 +117,6 @@ with open("./solution.py", 'w') as code:
 
     code.writelines("\n")
 
-    var = 0
-
     for gv_idx in range(num_grouping_vars+1):
         aggregates = aggregate_vector[gv_idx]
         selection_conditions = select_condition_vector[gv_idx]
@@ -125,42 +131,37 @@ with open("./solution.py", 'w') as code:
                 agg_type, gv, agg_attribute = agg_val_to_list(agg)
                 code.writelines("\t\tif group." + agg + " == None:\n")
                 if agg_type == "count":
-                    #var = 1
                     #code.writelines("\t\t'Count Code'\n")
                     code.writelines("\t\t\tgroup." + agg + " = 1\n") #If value hasn't been set properly yet
                     code.writelines("\t\telse:\n")
                     code.writelines("\t\t\tgroup." + agg + " += 1\n") #Add +1 to count if it has been set
                     #TODO: Count code goes here
                 elif agg_type == "sum":
-                    #var = 1
                     #code.writelines("\t\t'Sum Code'\n")
                     code.writelines("\t\t\tgroup." + agg + " = record[\"" + agg_attribute + "\"]\n") #If value hasn't been set properly yet
                     code.writelines("\t\telse:\n")
                     code.writelines("\t\t\tgroup." + agg + " += record[\"" + agg_attribute + "\"]\n") #Add +1 to count if it has been set
                     #TODO
                 elif agg_type == "max":
-                    #var = 1
                     #code.writelines("\t\t'Max Code'\n")
                     code.writelines("\t\t\tgroup." + agg + " = record[\"" + agg_attribute + "\"]\n")
                     code.writelines("\t\telse:\n")
                     code.writelines("\t\t\tgroup." + agg + " = min(group." + agg + ", record[\"" + agg_attribute + "\"])\n")
                     #TODO
                 elif agg_type == "min":
-                    #var = 1
                     #code.writelines("\t\t'Min Code'\n")
                     code.writelines("\t\t\tgroup." + agg + " = record[\"" + agg_attribute + "\"]\n")
                     code.writelines("\t\telse:\n")
                     code.writelines("\t\t\tgroup." + agg + " = min(group." + agg + ", record[\"" + agg_attribute + "\"])\n")
                     #TODO
                 elif agg_type == "avg": #Average is stored as two index array, first index is sum, second is count. Average is then computed by dividing during printing
-                    #var = 1
                     #code.writelines("\t\t'Avg Code'\n")
                     code.writelines("\t\t\tgroup." + agg + " = [record[\"" + agg_attribute + "\"], 1]\n")
                     code.writelines("\t\telse:\n")
                     code.writelines("\t\t\tgroup." + agg + "[0] += record[\"" + agg_attribute + "\"]\n")
                     code.writelines("\t\t\tgroup." + agg + "[1] += 1\n")
                     #TODO
-            code.writelines("\n")
+            code.writelines("\n\n")
                 
     
 
@@ -168,3 +169,21 @@ with open("./solution.py", 'w') as code:
 
 #Having loop, where the output will be filtered
 #TODO
+    code.writelines("for group_attrs, aggs in output.items():\n")
+    code.writelines("\tif(" + having_condition + "):\n")
+    code.writelines("\t\tprint('--------------------')\n")
+    for attr in select_attrs:
+        code.writelines("\t\tprint('" + attr + ": ', ")
+        restOfLine = ""
+        grIdx = is_grouping_attr(attr)
+        if grIdx == -1:
+            agg_type, gv, agg_attribute = agg_val_to_list(attr)
+            if agg_type == "avg": #Special case for average, since it's stored as two values instead of one
+                restOfLine = "aggs." + attr + "[0]/aggs." + attr + "[1]"
+            else:
+                restOfLine = "aggs." + attr
+        else:
+            restOfLine = "group_attrs[" + str(grIdx) + "]"
+        code.writelines(restOfLine + ")\n")
+    code.writelines("\t\tprint('--------------------')\n")
+    

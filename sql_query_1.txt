@@ -1,0 +1,24 @@
+CREATE TABLE q1_ny AS (
+SELECT cust, AVG(quant) AS avg_ny_quant
+FROM sales
+WHERE state='NY'
+GROUP BY cust
+);
+
+CREATE TABLE q1_nj AS (
+SELECT cust, AVG(quant) AS avg_nj_quant
+FROM sales
+WHERE state='NJ'
+GROUP BY cust
+);
+
+CREATE TABLE q1_ct AS (
+SELECT cust, AVG(quant) AS avg_ct_quant
+FROM sales
+WHERE state='CT'
+GROUP BY cust
+);
+
+SELECT cust, avg_ny_quant, avg_nj_quant, avg_ct_quant
+FROM q1_ny NATURAL JOIN q1_nj NATURAL JOIN q1_ct
+WHERE avg_ny_quant > avg_nj_quant AND avg_ny_quant > avg_ct_quant;

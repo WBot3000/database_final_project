@@ -1,0 +1,13 @@
+cust, prod, min_1_quant, min_2_quant, min_3_quant
+3
+cust, prod
+min_1_quant, min_2_quant, min_3_quant
+record["year"]==2017, record["year"]==2018, record["year"]==2019
+True
+
+
+
+
+
+
+

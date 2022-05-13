@@ -1,0 +1,17 @@
+CREATE TABLE q2_apples AS (
+SELECT cust, SUM(quant) AS total_apples 
+FROM sales 
+WHERE prod='Apple' 
+GROUP BY cust
+);
+
+CREATE TABLE q2_cherries AS (
+SELECT cust, SUM(quant) AS total_cherries 
+FROM sales
+WHERE prod='Cherry' 
+GROUP BY cust
+);
+
+SELECT *
+FROM q2_apples NATURAL JOIN q2_cherries
+WHERE total_apples > total_cherries;

@@ -1,0 +1,23 @@
+CREATE TABLE q3_2017 AS (
+SELECT cust, prod, MIN(quant) AS min_2017
+FROM sales
+WHERE year=2017
+GROUP BY cust, prod
+);
+
+CREATE TABLE q3_2018 AS (
+SELECT cust, prod, MIN(quant) AS min_2018
+FROM sales
+WHERE year=2018
+GROUP BY cust, prod
+);
+
+CREATE TABLE q3_2019 AS (
+SELECT cust, prod, MIN(quant) AS min_2019
+FROM sales
+WHERE year=2019
+GROUP BY cust, prod
+);
+
+SELECT *
+FROM q3_2017 NATURAL JOIN q3_2018 NATURAL JOIN q3_2019
