@@ -1,11 +1,11 @@
-CREATE TABLE q2_apples AS (
+CREATE VIEW q2_apples AS (
 SELECT cust, SUM(quant) AS total_apples 
 FROM sales 
 WHERE prod='Apple' 
 GROUP BY cust
 );
 
-CREATE TABLE q2_cherries AS (
+CREATE VIEW q2_cherries AS (
 SELECT cust, SUM(quant) AS total_cherries 
 FROM sales
 WHERE prod='Cherry' 

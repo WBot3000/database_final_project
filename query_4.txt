@@ -1,7 +1,7 @@
-cust, prod, avg_1_quant, avg_2_quant, avg_3_quant, avg_4_quant
+cust, prod, avg_1_quant, avg_2_quant, avg_3_quant, avg_4_quant, avg_0_quant
 4
 cust, prod
-avg_1_quant, avg_2_quant, avg_3_quant, avg_4_quant
+avg_0_quant, avg_1_quant, avg_2_quant, avg_3_quant, avg_4_quant
 record["month"]>=1 and record["month"]<=3, record["month"]>=4 and record["month"]<=6, record["month"]>=7 and record["month"]<=9, record["month"]>=10 and record["month"]<=12
 True
 

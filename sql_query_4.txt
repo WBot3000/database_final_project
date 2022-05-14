@@ -1,30 +1,36 @@
-CREATE TABLE q4_quarter1 AS (
+CREATE VIEW q4_quarter1 AS (
 SELECT cust, prod, AVG(quant) AS quarter1_avg
 FROM sales
 WHERE month>=1 AND month<=3
 GROUP BY cust, prod
 );
 
-CREATE TABLE q4_quarter2 AS (
+CREATE VIEW q4_quarter2 AS (
 SELECT cust, prod, AVG(quant) AS quarter2_avg
 FROM sales
 WHERE month>=4 AND month<=6
 GROUP BY cust, prod
 );
 
-CREATE TABLE q4_quarter3 AS (
+CREATE VIEW q4_quarter3 AS (
 SELECT cust, prod, AVG(quant) AS quarter3_avg
 FROM sales
 WHERE month>=7 AND month<=9
 GROUP BY cust, prod
 );
 
-CREATE TABLE q4_quarter4 AS (
+CREATE VIEW q4_quarter4 AS (
 SELECT cust, prod, AVG(quant) AS quarter4_avg
 FROM sales
 WHERE month>=10 AND month<=12
 GROUP BY cust, prod
 );
 
+CREATE VIEW q4_year AS (
+SELECT cust, prod, AVG(quant) AS year_avg
+FROM sales
+GROUP BY cust, prod
+);
+
 SELECT *
-FROM q4_quarter1 NATURAL JOIN q4_quarter2 NATURAL JOIN q4_quarter3 NATURAL JOIN q4_quarter4;
+FROM q4_quarter1 NATURAL JOIN q4_quarter2 NATURAL JOIN q4_quarter3 NATURAL JOIN q4_quarter4 NATURAL JOIN q4_year;
