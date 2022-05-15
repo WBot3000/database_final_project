@@ -3,7 +3,7 @@ cust, prod, min_1_quant, min_2_quant, min_3_quant
 cust, prod
 min_1_quant, min_2_quant, min_3_quant
 record["year"]==2017, record["year"]==2018, record["year"]==2019
-True
+aggs.min_1_quant > aggs.min_2_quant and aggs.min_2_quant > aggs.min_3_quant
 
 
 

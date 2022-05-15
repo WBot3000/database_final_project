@@ -27,7 +27,7 @@ GROUP BY cust, prod
 );
 
 CREATE VIEW q4_year AS (
-SELECT cust, prod, AVG(quant) AS year_avg
+SELECT cust, prod, AVG(quant) AS year_avg, COUNT(quant) AS year_count
 FROM sales
 GROUP BY cust, prod
 );
